@@ -90,7 +90,10 @@ namespace DizzlrApp.Helpers
         {
             Google.Apis.Drive.v3.DriveService service = GetService();
             string path = Path.Combine(_environment.WebRootPath, "Uploads");
-
+            if (!Directory.Exists(path))
+            {
+                Directory.CreateDirectory(path);
+            }
             FilesResource.GetRequest request = service.Files.Get(fileId);
             string FileName = request.Execute().Name;
             string FilePath = Path.Combine(path, FileName);
