@@ -1,0 +1,93 @@
+﻿@model DizzlrApp.ViewModels.OrderManagerVM
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+}
+
+<h4>Orders Management</h4>
+<hr />
+<div id="msg" class="d-none alert alert-success alert-dismissible" style="margin-top:20px">
+</div>
+@if (Model.OrderDetails.Count == 0)
+{
+    <caption>No Records Found</caption>
+}
+else
+{
+    @Html.DropDownList("StatuesId",
+    Model.Statuses, htmlAttributes: new
+        {
+            @id = "selectStatus",
+            @class = "form-control",
+        @style = "float:right; width:250px; margin:15px;",
+        onchange = "document.location.href = '/Manage/Index?status=' + this.options[this.selectedIndex].value;"
+    })
+    <table id="orders" class="table table-striped">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>User Name</th>
+                <th>
+                    <a asp-action="Index" asp-route-sortOrder="@ViewData["DateSortParm"]">Order Date</a>
+                </th>
+                <th>Total Files</th>
+                <th>Current Status</th>
+                <th>Change Status</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var order in Model.OrderDetails)
+            {
+                <tr>
+
+                    <th>
+                        <input type="hidden" name="orderId" value="@order.OrderId" />
+                        @order.OrderId
+                    </th>
+                    <td>@order.UserName</td>
+                    <td>@order.OrderDate</td>
+                    <td>@order.TotalFiles</td>
+                    <td>@order.Status</td>
+                    <td>
+                        @Html.DropDownList("StatusId",
+                       order.Statuses, htmlAttributes:
+                       new { @class = "form-control", @id = order.OrderId })
+                    </td>
+                    <td>
+                        <button class="btn btn-primary" onclick="updateStatus(this)" data-assigned-id="@order.OrderId">Change Status</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    <ul class="pagination">
+        @for (var i = 1; i <= Model.PageCount; i++)
+        {
+            <li class="page-item @(i == Model.CurrentPageIndex ? "active" : "")">
+                <a asp-action="Index" asp-route-sortOrder="@ViewData["DateSortParm"]" asp-route-pageNumber="@i" class="page-link">@i</a>
+            </li>
+        }
+    </ul>
+}
+@section scripts {
+    <script>
+        function updateStatus(elem) {
+            let id = $(elem).data('assigned-id');
+            let status = $(`#${id}`).val();
+
+            $.ajax({
+                type: 'POST',
+                url: `/Manage/UpdateStatus?orderId=${id}&status=${status}`,
+                success: function (response) {
+                    let message = response.message;
+                    $('#msg').text(message);
+                    $('#msg').removeClass('d-none');
+                    setTimeout(function () { $('#msg').addClass('d-none'); }, 2000);
+                }
+            });
+        }
+
+    </script>
+}

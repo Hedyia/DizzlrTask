@@ -1,0 +1,81 @@
+﻿@model FileUpload
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+}
+
+<h4>My Folder</h4>
+<hr />
+@if (ViewBag.Message != null)
+{
+    <div class="alert alert-success alert-dismissible" style="margin-top:20px">
+        @ViewBag.Message
+    </div>
+}
+<form method="post" enctype="multipart/form-data" class="form-inline">
+    <div class="form-group mb-2">
+        <input type="file" name="files" multiple required />
+        <input class="mr-2" type="text" autocomplete="off" placeholder="Enter File Description" name="description" required />
+        <button type="submit" class="btn btn-primary mr-2" asp-controller="MyFolder" asp-action="UploadToFileSystem">Add Files</button>
+        <a class="btn btn-outline-info mr-2" asp-controller="GoogleDrive" asp-action="Index"><i class="fab fa-google-drive"></i></a>
+    </div>
+
+</form>
+
+
+<hr />
+<h4>Your Files List</h4>
+@if (Model.FilesOnFileSystem.Count == 0)
+{
+    <caption>No Records Found</caption>
+}
+else
+{
+    @using (@Html.BeginForm("SubmitSelectedFiles", "MyFolder", FormMethod.Post))
+    {
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Name</th>
+                    <th>Description</th>
+                    <th>File Type</th>
+                    <th>Created On</th>
+                    <th>Actions</th>
+                    <th>File To Submit</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var file in Model.FilesOnFileSystem)
+                {
+                    <tr>
+
+                        <th>@file.Id</th>
+                        <td>@file.Name</td>
+                        <td>@file.Description</td>
+                        <td style="width:15%;">@file.FileType</td>
+                        <td style="width:10%;">@file.CreatedOn</td>
+                        <td style="width:10%;">
+                            <a style="width:40px;" type="button" class="btn btn-outline-info" asp-controller="MyFolder" asp-action="DownloadFileFromFileSystem" asp-route-id="@file.Id"><i class="fas fa-download"></i></a>
+                            <a style="width:40px;" type="button" class="btn btn-outline-danger" asp-controller="MyFolder" asp-action="DeleteFileFromFileSystem" asp-route-id="@file.Id"><i class="fas fa-trash-alt"></i></a>
+                        </td>
+                        <th><input class="custom-checkbox" name="ID" value="@file.Id" asp-for="@file.IsChecked"></th>
+                    </tr>
+                }
+            </tbody>
+        </table>
+        <div style="display:inline-block; width:65%">
+        <ul class="pagination">
+            @for (var i = 1; i <= Model.PageCount; i++)
+            {
+                <li class="page-item @(i == Model.CurrentPageIndex ? "active" : "")">
+                    <a asp-action="Index"  asp-route-pageNumber="@i" class="page-link">@i</a>
+                </li>
+            }
+        </ul>
+        </div>
+        <button type="submit" class="btn btn-primary" style="display:inline-block; width:200px;">Add Files</button>
+    }
+
+}

@@ -1,0 +1,41 @@
+﻿@model DizzlrApp.ViewModels.OrderVM
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+}
+
+<h4>My Orders</h4>
+<hr />
+
+@if (Model.OrderDetails.Count == 0)
+{
+    <caption>No Records Found</caption>
+}
+else
+{
+
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Order Date</th>
+                <th>Total Files</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var order in Model.OrderDetails)
+            {
+                <tr>
+
+                    <th>@order.OrderId</th>
+                    <td>@order.OrderDate</td>
+                    <td>@order.TotalFiles</td>
+                    <td>@order.Status</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+}
